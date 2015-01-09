@@ -15,9 +15,6 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
       init_repository(@resource.value(:path))
     else
       clone_repository(@resource.value(:source), @resource.value(:path))
-      if @resource.value(:revision)
-        checkout
-      end
       if @resource.value(:ensure) != :bare
         update_submodules
       end
@@ -123,6 +120,9 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
   def clone_repository(source, path)
     check_force
     args = ['clone']
+    if @resource.value(:revision)
+      args.push('--branch', @resource.value(:revision).to_s)
+    end
     if @resource.value(:depth) and @resource.value(:depth).to_i > 0
       args.push('--depth', @resource.value(:depth).to_s)
     end
